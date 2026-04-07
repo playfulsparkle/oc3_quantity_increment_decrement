@@ -1,0 +1,45 @@
+.product-thumb .ps-input-group {
+    margin-bottom: 16px;
+    padding: 0 16px;
+}
+
+.ps-input-group .form-control {
+    text-align: var(--ps-text-align, end);
+    -moz-appearance: textfield;
+    appearance: textfield;
+}
+
+.ps-input-group .form-control::-webkit-outer-spin-button,
+.ps-input-group .form-control::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.ps-input-group.ps-no-border-radius .input-group-btn>button {
+    border-radius: 0;
+}
+
+.ps-input-group .btn-ps-custom {
+    color: var(--ps-btn-color);
+    background-color: var(--ps-btn-bg-start);
+    background-image: linear-gradient(to bottom, var(--ps-btn-bg-start), var(--ps-btn-bg-end));
+    background-repeat: repeat-x;
+    border-color: var(--ps-btn-border-color-all) var(--ps-btn-border-color-all) var(--ps-btn-border-color-bottom);
+}
+
+.ps-input-group .btn-ps-custom:hover {
+    background-image: none;
+    background-color: var(--ps-btn-hover-bg);
+}
+
+.ps-input-group .btn-ps-custom:active,
+.ps-input-group .btn-ps-custom.active {
+    background-image: none;
+    background-color: var(--ps-btn-active-bg);
+}
+
+.ps-input-group .btn-ps-custom.disabled,
+.ps-input-group .btn-ps-custom[disabled] {
+    background-image: none;
+    background-color: var(--ps-btn-disabled-bg);
+}

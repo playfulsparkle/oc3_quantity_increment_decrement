@@ -1,0 +1,289 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <button type="submit" form="form-module" data-toggle="tooltip" title="{{ button_save }}" class="btn btn-primary"><i class="fa fa-save"></i></button>
+        <a href="{{ cancel }}" data-toggle="tooltip" title="{{ button_cancel }}" class="btn btn-default"><i class="fa fa-reply"></i></a></div>
+      <h1>{{ heading_title }}</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+        <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  <div class="container-fluid">
+    {% if error_warning %}
+    <div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> {{ error_warning }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title"><i class="fa fa-pencil"></i> {{ text_edit }}</h3>
+      </div>
+      <div class="panel-body">
+        <form action="{{ action }}" method="post" enctype="multipart/form-data" id="form-module" class="form-horizontal">
+
+          <ul class="nav nav-tabs">
+            <li class="active"><a href="#tab-general" data-toggle="tab">{{ tab_general }}</a></li>
+            <li><a href="#tab-support" data-toggle="tab">{{ tab_help_and_support }}</a></li>
+          </ul>
+          <div class="tab-content">
+            <div class="tab-pane active" id="tab-general">
+
+							<div class="form-group">
+								<label class="col-sm-2 control-label" for="input-status">{{ entry_status }}</label>
+								<div class="col-sm-10">
+									<select name="module_ps_quantity_increment_decrement_status" id="input-status" class="form-control">
+										{% if module_ps_quantity_increment_decrement_status %}
+										<option value="1" selected="selected">{{ text_enabled }}</option>
+										<option value="0">{{ text_disabled }}</option>
+										{% else %}
+										<option value="1">{{ text_enabled }}</option>
+										<option value="0" selected="selected">{{ text_disabled }}</option>
+										{% endif %}
+									</select>
+								</div>
+							</div>
+
+              <div class="form-group">
+                <label class="col-sm-2 control-label">{{ entry_show_on_pages }}</label>
+                <div class="col-sm-10">
+                  <div class="well well-sm" style="height: 150px; overflow: auto;">
+										{% for key, value in show_on_pages %}
+                      <div class="checkbox">
+                        <label> {% if key in module_ps_quantity_increment_decrement_show_on_page %}
+                            <input type="checkbox" name="module_ps_quantity_increment_decrement_show_on_page[]" value="{{ key }}" checked="checked"/>
+                            {{ value }}
+                          {% else %}
+                            <input type="checkbox" name="module_ps_quantity_increment_decrement_show_on_page[]" value="{{ key }}"/>
+                            {{ value }}
+                          {% endif %} </label>
+                      </div>
+                    {% endfor %}
+									</div>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-qty-alignment">{{ entry_qty_alignment }}</label>
+                <div class="col-sm-10">
+                  <select name="module_ps_quantity_increment_decrement_text_align" id="input-qty-alignment" class="form-control">
+                    {% for key, value in text_aligns %}
+                      {% if key == module_ps_quantity_increment_decrement_text_align %}
+                        <option value="{{ key }}" selected="selected">{{ value }}</option>
+                      {% else %}
+                        <option value="{{ key }}">{{ value }}</option>
+                      {% endif %}
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-btn-icon">{{ entry_btn_icon }}</label>
+                <div class="col-sm-10">
+                  <select name="module_ps_quantity_increment_decrement_btn_icon" id="input-btn-icon" class="form-control">
+                    {% for key, value in btn_icons %}
+                      {% if key == module_ps_quantity_increment_decrement_btn_icon %}
+                        <option value="{{ key }}" selected="selected">{{ value }}</option>
+                      {% else %}
+                        <option value="{{ key }}">{{ value }}</option>
+                      {% endif %}
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-base-theme">{{ entry_base_theme }}</label>
+                <div class="col-sm-10">
+                  <select name="module_ps_quantity_increment_decrement_base_theme" id="input-base-theme" class="form-control">
+                    {% for key, value in btn_classnames %}
+                      {% if key == module_ps_quantity_increment_decrement_base_theme %}
+                        <option value="{{ key }}" selected="selected">{{ value }}</option>
+                      {% else %}
+                        <option value="{{ key }}">{{ value }}</option>
+                      {% endif %}
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+
+							<div class="form-group">
+								<label class="col-sm-2 control-label" for="input-override-base-theme">{{ entry_override_base_theme }}</label>
+								<div class="col-sm-10">
+									<select name="module_ps_quantity_increment_decrement_override_base_theme" id="input-override-base-theme" class="form-control">
+										{% if module_ps_quantity_increment_decrement_override_base_theme %}
+										<option value="1" selected="selected">{{ text_enabled }}</option>
+										<option value="0">{{ text_disabled }}</option>
+										{% else %}
+										<option value="1">{{ text_enabled }}</option>
+										<option value="0" selected="selected">{{ text_disabled }}</option>
+										{% endif %}
+									</select>
+								</div>
+							</div>
+
+							<div id="theme-override-group"{% if not module_ps_quantity_increment_decrement_override_base_theme %} style="display: none;"{% endif %}>
+
+								<div class="form-group required">
+									<label for="input-btn-color" class="col-sm-2 control-label">{{ entry_btn_color }}</label>
+									<div class="col-sm-10">
+										<input type="color" name="module_ps_quantity_increment_decrement_btn_color" value="{{ module_ps_quantity_increment_decrement_btn_color }}" placeholder="{{ entry_btn_color }}" id="input-btn-color">
+									</div>
+								</div>
+
+								<div class="form-group">
+									<label class="col-sm-2 control-label" for="input-btn-bg">{{ entry_btn_bg }}</label>
+									<div class="col-sm-10">
+										<div class="input-group">
+											<span class="input-group-addon">{{ entry_start_color }}</span>
+											<input type="color" name="module_ps_quantity_increment_decrement_btn_bg_start" value="{{ module_ps_quantity_increment_decrement_btn_bg_start }}" id="input-btn-bg-start">
+											<span class="input-group-addon">{{ entry_end_color }}</span>
+											<input type="color" name="module_ps_quantity_increment_decrement_btn_bg_end" value="{{ module_ps_quantity_increment_decrement_btn_bg_end }}" id="input-btn-bg-end">
+										</div>
+									</div>
+								</div>
+
+								<div class="form-group">
+									<label class="col-sm-2 control-label" for="input-btn-border-color">{{ entry_btn_border_color }}</label>
+									<div class="col-sm-10">
+										<div class="input-group">
+											<span class="input-group-addon">{{ entry_all_border_color }}</span>
+											<input type="color" name="module_ps_quantity_increment_decrement_btn_border_color_all" value="{{ module_ps_quantity_increment_decrement_btn_border_color_all }}" id="input-btn-border-color-all">
+											<span class="input-group-addon">{{ entry_bottom_border_color }}</span>
+											<input type="color" name="module_ps_quantity_increment_decrement_btn_border_color_bottom" value="{{ module_ps_quantity_increment_decrement_btn_border_color_bottom }}" id="input-btn-border-color-bottom">
+										</div>
+									</div>
+								</div>
+
+								<div class="form-group required">
+									<label for="input-btn-hover-bg" class="col-sm-2 control-label">{{ entry_btn_hover_bg }}</label>
+									<div class="col-sm-10">
+										<input type="color" name="module_ps_quantity_increment_decrement_btn_hover_bg" value="{{ module_ps_quantity_increment_decrement_btn_hover_bg }}" placeholder="{{ entry_btn_hover_bg }}" id="input-btn-hover-bg">
+									</div>
+								</div>
+
+								<div class="form-group required">
+									<label for="input-btn-active-bg" class="col-sm-2 control-label">{{ entry_btn_active_bg }}</label>
+									<div class="col-sm-10">
+										<input type="color" name="module_ps_quantity_increment_decrement_btn_active_bg" value="{{ module_ps_quantity_increment_decrement_btn_active_bg }}" placeholder="{{ entry_btn_active_bg }}" id="input-btn-active-bg">
+									</div>
+								</div>
+
+								<div class="form-group required">
+									<label for="input-btn-disabled-bg" class="col-sm-2 control-label">{{ entry_btn_disabled_bg }}</label>
+									<div class="col-sm-10">
+										<input type="color" name="module_ps_quantity_increment_decrement_btn_disabled_bg" value="{{ module_ps_quantity_increment_decrement_btn_disabled_bg }}" placeholder="{{ entry_btn_disabled_bg }}" id="input-btn-disabled-bg">
+									</div>
+								</div>
+
+							</div>
+
+            </div>
+						<div class="tab-pane" id="tab-support">
+
+							<h3>{{ heading_contact }}</h3>
+							{{ text_contact }}
+
+            </div>
+          </div>
+
+        </form>
+      </div>
+    </div>
+  </div>
+	<script>
+		var btnThemes = {
+			'btn-primary': {
+				color: '#ffffff',
+				bgStart: '#23a1d1',
+				bgEnd: '#1f90bb',
+				borderColorAll: '#1f90bb',
+				borderColorBottom: '#145e7a',
+				hoverBg: '#1f90bb',
+				activeBg: '#1f90bb',
+				disabledBg: '#1f90bb'
+			},
+			'btn-default': {
+				color: '#777',
+				bgStart: '#eeeeee',
+				bgEnd: '#dddddd',
+				borderColorAll: '#bbbbbb',
+				borderColorBottom: '#7a7a7a',
+				hoverBg: '#bbbbbb',
+				activeBg: '#bbbbbb',
+				disabledBg: '#bbbbbb'
+			},
+			'btn-success': {
+				color: '#ffffff',
+				bgStart: '#62c462',
+				bgEnd: '#51a351',
+				borderColorAll: '#51a351',
+				borderColorBottom: '#387038',
+				hoverBg: '#51a351',
+				activeBg: '#51a351',
+				disabledBg: '#51a351'
+			},
+			'btn-info': {
+				color: '#ffffff',
+				bgStart: '#e06342',
+				bgEnd: '#dc512c',
+				borderColorAll: '#dc512c',
+				borderColorBottom: '#a2371a',
+				hoverBg: '#df5c39',
+				activeBg: '#df5c39',
+				disabledBg: '#df5c39'
+			},
+			'btn-warning': {
+				color: '#ffffff',
+				bgStart: '#fbb450',
+				bgEnd: '#f89406',
+				borderColorAll: '#f89406',
+				borderColorBottom: '#ad6704',
+				hoverBg: '#f89406',
+				activeBg: '#f89406',
+				disabledBg: '#f89406'
+			},
+			'btn-danger': {
+				color: '#ffffff',
+				bgStart: '#ee5f5b',
+				bgEnd: '#bd362f',
+				borderColorAll: '#bd362f',
+				borderColorBottom: '#802420',
+				hoverBg: '#bd362f',
+				activeBg: '#bd362f',
+				disabledBg: '#bd362f'
+			}
+		};
+
+		function updateColorInputs(selectedClass) {
+			var theme = btnThemes[selectedClass];
+			if (!theme) return;
+
+			$('#input-btn-color').val(theme.color);
+
+			$('#input-btn-bg-start').val(theme.bgStart);
+			$('#input-btn-bg-end').val(theme.bgEnd);
+
+			$('#input-btn-border-color-all').val(theme.borderColorAll);
+			$('#input-btn-border-color-bottom').val(theme.borderColorBottom);
+
+			$('#input-btn-hover-bg').val(theme.hoverBg);
+			$('#input-btn-active-bg').val(theme.activeBg);
+			$('#input-btn-disabled-bg').val(theme.disabledBg);
+		}
+
+		$('#input-base-theme').on('change', function () {
+			updateColorInputs($(this).val());
+		});
+
+		$('#input-override-base-theme').on('change', function() {
+				$('#theme-override-group').toggle($(this).val() == '1');
+		});
+	</script>
+</div>
+{{ footer }}

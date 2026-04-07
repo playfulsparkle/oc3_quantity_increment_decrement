@@ -1,0 +1,740 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+This file is part of "Playful Sparkle - Quantity Increment Decrement" project and subject to the terms
+and conditions defined in file "LICENSE", which is part of this source
+code package and also available on the project page: https://github.com/playfulsparkle/oc3_quantity_increment_decrement
+-->
+<modification>
+    <name>Playful Sparkle - Quantity Increment Decrement</name>
+    <code>ps_quantity_increment_decrement</code>
+    <version>1.0.0</version>
+    <author>Playful Sparkle</author>
+    <link>https://github.com/playfulsparkle/oc3_quantity_increment_decrement</link>
+    <file path="catalog/controller/common/header.php">
+        <operation>
+            <search><![CDATA[$data['analytics'] = array();]]></search>
+            <add position="before"><![CDATA[
+                if ($this->config->get('module_ps_quantity_increment_decrement_status')) {
+                    $this->document->addScript('catalog/view/javascript/ps_quantity_increment_decrement.js');
+                    $this->document->addStyle('catalog/view/theme/default/stylesheet/ps_quantity_increment_decrement.css');
+                }
+            ]]></add>
+        </operation>
+    </file>
+    <file path="catalog/controller/extension/module/bestseller.php">
+        <operation>
+            <search><![CDATA[$data['products'] = array();]]></search>
+            <add position="after"><![CDATA[
+                $this->load->library('playfulsparkle/ps_quantity_increment_decrement');
+
+                $data['ps_status'] = (
+                    $this->config->get('module_ps_quantity_increment_decrement_status') &&
+                    in_array('bestseller_module', (array) $this->config->get('module_ps_quantity_increment_decrement_show_on_page'))
+                );
+
+                $this->load->language('extension/module/ps_quantity_increment_decrement', 'ps_quantity_increment_decrement');
+
+                $ps_language = $this->language->get('ps_quantity_increment_decrement');
+
+                $data['ps_button_increment'] = $ps_language->get('button_increment');
+                $data['ps_button_decrement'] = $ps_language->get('button_decrement');
+
+                $data['ps_base_theme'] = $this->config->get('module_ps_quantity_increment_decrement_base_theme');
+                $data['ps_override_base_theme'] = $this->config->get('module_ps_quantity_increment_decrement_override_base_theme');
+
+                $data['ps_text_align'] = $this->config->get('module_ps_quantity_increment_decrement_text_align');
+
+                $ps_icons = $this->ps_quantity_increment_decrement->getButtonIconClasses($this->config->get('module_ps_quantity_increment_decrement_btn_icon'));
+
+                $data['ps_increment_icon'] = $ps_icons['increment'];
+                $data['ps_decrement_icon'] = $ps_icons['decrement'];
+
+                $data['ps_btn_color'] = $this->config->get('module_ps_quantity_increment_decrement_btn_color');
+                $data['ps_btn_bg_start'] = $this->config->get('module_ps_quantity_increment_decrement_btn_bg_start');
+                $data['ps_btn_bg_end'] = $this->config->get('module_ps_quantity_increment_decrement_btn_bg_end');
+                $data['ps_btn_border_color_all'] = $this->config->get('module_ps_quantity_increment_decrement_btn_border_color_all');
+                $data['ps_btn_border_color_bottom'] = $this->config->get('module_ps_quantity_increment_decrement_btn_border_color_bottom');
+                $data['ps_btn_hover_bg'] = $this->config->get('module_ps_quantity_increment_decrement_btn_hover_bg');
+                $data['ps_btn_active_bg'] = $this->config->get('module_ps_quantity_increment_decrement_btn_active_bg');
+                $data['ps_btn_disabled_bg'] = $this->config->get('module_ps_quantity_increment_decrement_btn_disabled_bg');
+            ]]></add>
+        </operation>
+    </file>
+    <file path="catalog/view/theme/default/template/extension/module/bestseller.twig">
+        <operation>
+            <search><![CDATA[onclick="cart.add('{{ product.product_id }}');"]]></search>
+            <add position="replace"><![CDATA[onclick="cart.add('{{ product.product_id }}'{% if ps_status %}, PsIncrementDecrement.getQuantityValue('{{ product.product_id }}'){% endif %});"]]></add>
+        </operation>
+        <operation>
+            <search><![CDATA[<div class="button-group">]]></search>
+            <add position="before"><![CDATA[
+                {% if ps_status %}<div class="input-group ps-input-group" data-input-group="{{ product.product_id }}" style="--ps-text-align: {{ ps_text_align }};{% if ps_override_base_theme %} --ps-btn-color: {{ ps_btn_color }}; --ps-btn-bg-start: {{ ps_btn_bg_start }}; --ps-btn-bg-end: {{ ps_btn_bg_end }}; --ps-btn-border-color-all: {{ ps_btn_border_color_all }}; --ps-btn-border-color-bottom: {{ ps_btn_border_color_bottom }}; --ps-btn-hover-bg: {{ ps_btn_hover_bg }}; --ps-btn-active-bg: {{ ps_btn_active_bg }}; --ps-btn-disabled-bg: {{ ps_btn_disabled_bg }};{% endif %}">
+                    <span class="input-group-btn">
+                        <button type="button" data-ps-action="decrement" data-toggle="tooltip" title="{{ ps_button_decrement }}" class="btn {{ ps_base_theme }}{% if ps_override_base_theme %} btn-ps-custom{% endif %}"><i class="{{ ps_decrement_icon }}"></i></button>
+                    </span>
+                    <input type="text" inputmode="numeric" min="1" name="quantity" value="1" autocomplete="off" class="form-control" />
+                    <span class="input-group-btn">
+                        <button type="button" data-ps-action="increment" data-toggle="tooltip" title="{{ ps_button_increment }}" class="btn {{ ps_base_theme }}{% if ps_override_base_theme %} btn-ps-custom{% endif %}"><i class="{{ ps_increment_icon }}"></i></button>
+                    </span>
+                </div>{% endif %}
+            ]]></add>
+        </operation>
+    </file>
+    <file path="catalog/controller/extension/module/featured.php">
+        <operation>
+            <search><![CDATA[$data['products'] = array();]]></search>
+            <add position="after"><![CDATA[
+                $this->load->library('playfulsparkle/ps_quantity_increment_decrement');
+
+                $data['ps_status'] = (
+                    $this->config->get('module_ps_quantity_increment_decrement_status') &&
+                    in_array('featured_module', (array) $this->config->get('module_ps_quantity_increment_decrement_show_on_page'))
+                );
+
+                $this->load->language('extension/module/ps_quantity_increment_decrement', 'ps_quantity_increment_decrement');
+
+                $ps_language = $this->language->get('ps_quantity_increment_decrement');
+
+                $data['ps_button_increment'] = $ps_language->get('button_increment');
+                $data['ps_button_decrement'] = $ps_language->get('button_decrement');
+
+                $data['ps_base_theme'] = $this->config->get('module_ps_quantity_increment_decrement_base_theme');
+                $data['ps_override_base_theme'] = $this->config->get('module_ps_quantity_increment_decrement_override_base_theme');
+
+                $data['ps_text_align'] = $this->config->get('module_ps_quantity_increment_decrement_text_align');
+
+                $ps_icons = $this->ps_quantity_increment_decrement->getButtonIconClasses($this->config->get('module_ps_quantity_increment_decrement_btn_icon'));
+
+                $data['ps_increment_icon'] = $ps_icons['increment'];
+                $data['ps_decrement_icon'] = $ps_icons['decrement'];
+
+                $data['ps_btn_color'] = $this->config->get('module_ps_quantity_increment_decrement_btn_color');
+                $data['ps_btn_bg_start'] = $this->config->get('module_ps_quantity_increment_decrement_btn_bg_start');
+                $data['ps_btn_bg_end'] = $this->config->get('module_ps_quantity_increment_decrement_btn_bg_end');
+                $data['ps_btn_border_color_all'] = $this->config->get('module_ps_quantity_increment_decrement_btn_border_color_all');
+                $data['ps_btn_border_color_bottom'] = $this->config->get('module_ps_quantity_increment_decrement_btn_border_color_bottom');
+                $data['ps_btn_hover_bg'] = $this->config->get('module_ps_quantity_increment_decrement_btn_hover_bg');
+                $data['ps_btn_active_bg'] = $this->config->get('module_ps_quantity_increment_decrement_btn_active_bg');
+                $data['ps_btn_disabled_bg'] = $this->config->get('module_ps_quantity_increment_decrement_btn_disabled_bg');
+            ]]></add>
+        </operation>
+    </file>
+    <file path="catalog/view/theme/default/template/extension/module/featured.twig">
+        <operation>
+            <search><![CDATA[onclick="cart.add('{{ product.product_id }}');"]]></search>
+            <add position="replace"><![CDATA[onclick="cart.add('{{ product.product_id }}'{% if ps_status %}, PsIncrementDecrement.getQuantityValue('{{ product.product_id }}'){% endif %});"]]></add>
+        </operation>
+        <operation>
+            <search><![CDATA[<div class="button-group">]]></search>
+            <add position="before"><![CDATA[
+                {% if ps_status %}<div class="input-group ps-input-group" data-input-group="{{ product.product_id }}" style="--ps-text-align: {{ ps_text_align }};{% if ps_override_base_theme %} --ps-btn-color: {{ ps_btn_color }}; --ps-btn-bg-start: {{ ps_btn_bg_start }}; --ps-btn-bg-end: {{ ps_btn_bg_end }}; --ps-btn-border-color-all: {{ ps_btn_border_color_all }}; --ps-btn-border-color-bottom: {{ ps_btn_border_color_bottom }}; --ps-btn-hover-bg: {{ ps_btn_hover_bg }}; --ps-btn-active-bg: {{ ps_btn_active_bg }}; --ps-btn-disabled-bg: {{ ps_btn_disabled_bg }};{% endif %}">
+                    <span class="input-group-btn">
+                        <button type="button" data-ps-action="decrement" data-toggle="tooltip" title="{{ ps_button_decrement }}" class="btn {{ ps_base_theme }}{% if ps_override_base_theme %} btn-ps-custom{% endif %}"><i class="{{ ps_decrement_icon }}"></i></button>
+                    </span>
+                    <input type="text" inputmode="numeric" min="1" name="quantity" value="1" autocomplete="off" class="form-control" />
+                    <span class="input-group-btn">
+                        <button type="button" data-ps-action="increment" data-toggle="tooltip" title="{{ ps_button_increment }}" class="btn {{ ps_base_theme }}{% if ps_override_base_theme %} btn-ps-custom{% endif %}"><i class="{{ ps_increment_icon }}"></i></button>
+                    </span>
+                </div>{% endif %}
+            ]]></add>
+        </operation>
+    </file>
+    <file path="catalog/controller/extension/module/latest.php">
+        <operation>
+            <search><![CDATA[$data['products'] = array();]]></search>
+            <add position="after"><![CDATA[
+                $this->load->library('playfulsparkle/ps_quantity_increment_decrement');
+
+                $data['ps_status'] = (
+                    $this->config->get('module_ps_quantity_increment_decrement_status') &&
+                    in_array('latest_module', (array) $this->config->get('module_ps_quantity_increment_decrement_show_on_page'))
+                );
+
+                $this->load->language('extension/module/ps_quantity_increment_decrement', 'ps_quantity_increment_decrement');
+
+                $ps_language = $this->language->get('ps_quantity_increment_decrement');
+
+                $data['ps_button_increment'] = $ps_language->get('button_increment');
+                $data['ps_button_decrement'] = $ps_language->get('button_decrement');
+
+                $data['ps_base_theme'] = $this->config->get('module_ps_quantity_increment_decrement_base_theme');
+                $data['ps_override_base_theme'] = $this->config->get('module_ps_quantity_increment_decrement_override_base_theme');
+
+                $data['ps_text_align'] = $this->config->get('module_ps_quantity_increment_decrement_text_align');
+
+                $ps_icons = $this->ps_quantity_increment_decrement->getButtonIconClasses($this->config->get('module_ps_quantity_increment_decrement_btn_icon'));
+
+                $data['ps_increment_icon'] = $ps_icons['increment'];
+                $data['ps_decrement_icon'] = $ps_icons['decrement'];
+
+                $data['ps_btn_color'] = $this->config->get('module_ps_quantity_increment_decrement_btn_color');
+                $data['ps_btn_bg_start'] = $this->config->get('module_ps_quantity_increment_decrement_btn_bg_start');
+                $data['ps_btn_bg_end'] = $this->config->get('module_ps_quantity_increment_decrement_btn_bg_end');
+                $data['ps_btn_border_color_all'] = $this->config->get('module_ps_quantity_increment_decrement_btn_border_color_all');
+                $data['ps_btn_border_color_bottom'] = $this->config->get('module_ps_quantity_increment_decrement_btn_border_color_bottom');
+                $data['ps_btn_hover_bg'] = $this->config->get('module_ps_quantity_increment_decrement_btn_hover_bg');
+                $data['ps_btn_active_bg'] = $this->config->get('module_ps_quantity_increment_decrement_btn_active_bg');
+                $data['ps_btn_disabled_bg'] = $this->config->get('module_ps_quantity_increment_decrement_btn_disabled_bg');
+            ]]></add>
+        </operation>
+    </file>
+    <file path="catalog/view/theme/default/template/extension/module/latest.twig">
+        <operation>
+            <search><![CDATA[onclick="cart.add('{{ product.product_id }}');"]]></search>
+            <add position="replace"><![CDATA[onclick="cart.add('{{ product.product_id }}'{% if ps_status %}, PsIncrementDecrement.getQuantityValue('{{ product.product_id }}'){% endif %});"]]></add>
+        </operation>
+        <operation>
+            <search><![CDATA[<div class="button-group">]]></search>
+            <add position="before"><![CDATA[
+                {% if ps_status %}<div class="input-group ps-input-group" data-input-group="{{ product.product_id }}" style="--ps-text-align: {{ ps_text_align }};{% if ps_override_base_theme %} --ps-btn-color: {{ ps_btn_color }}; --ps-btn-bg-start: {{ ps_btn_bg_start }}; --ps-btn-bg-end: {{ ps_btn_bg_end }}; --ps-btn-border-color-all: {{ ps_btn_border_color_all }}; --ps-btn-border-color-bottom: {{ ps_btn_border_color_bottom }}; --ps-btn-hover-bg: {{ ps_btn_hover_bg }}; --ps-btn-active-bg: {{ ps_btn_active_bg }}; --ps-btn-disabled-bg: {{ ps_btn_disabled_bg }};{% endif %}">
+                    <span class="input-group-btn">
+                        <button type="button" data-ps-action="decrement" data-toggle="tooltip" title="{{ ps_button_decrement }}" class="btn {{ ps_base_theme }}{% if ps_override_base_theme %} btn-ps-custom{% endif %}"><i class="{{ ps_decrement_icon }}"></i></button>
+                    </span>
+                    <input type="text" inputmode="numeric" min="1" name="quantity" value="1" autocomplete="off" class="form-control" />
+                    <span class="input-group-btn">
+                        <button type="button" data-ps-action="increment" data-toggle="tooltip" title="{{ ps_button_increment }}" class="btn {{ ps_base_theme }}{% if ps_override_base_theme %} btn-ps-custom{% endif %}"><i class="{{ ps_increment_icon }}"></i></button>
+                    </span>
+                </div>{% endif %}
+            ]]></add>
+        </operation>
+    </file>
+    <file path="catalog/controller/extension/module/special.php">
+        <operation>
+            <search><![CDATA[$data['products'] = array();]]></search>
+            <add position="after"><![CDATA[
+                $this->load->library('playfulsparkle/ps_quantity_increment_decrement');
+
+                $data['ps_status'] = (
+                    $this->config->get('module_ps_quantity_increment_decrement_status') &&
+                    in_array('special_module', (array) $this->config->get('module_ps_quantity_increment_decrement_show_on_page'))
+                );
+
+                $this->load->language('extension/module/ps_quantity_increment_decrement', 'ps_quantity_increment_decrement');
+
+                $ps_language = $this->language->get('ps_quantity_increment_decrement');
+
+                $data['ps_button_increment'] = $ps_language->get('button_increment');
+                $data['ps_button_decrement'] = $ps_language->get('button_decrement');
+
+                $data['ps_base_theme'] = $this->config->get('module_ps_quantity_increment_decrement_base_theme');
+                $data['ps_override_base_theme'] = $this->config->get('module_ps_quantity_increment_decrement_override_base_theme');
+
+                $data['ps_text_align'] = $this->config->get('module_ps_quantity_increment_decrement_text_align');
+
+                $ps_icons = $this->ps_quantity_increment_decrement->getButtonIconClasses($this->config->get('module_ps_quantity_increment_decrement_btn_icon'));
+
+                $data['ps_increment_icon'] = $ps_icons['increment'];
+                $data['ps_decrement_icon'] = $ps_icons['decrement'];
+
+                $data['ps_btn_color'] = $this->config->get('module_ps_quantity_increment_decrement_btn_color');
+                $data['ps_btn_bg_start'] = $this->config->get('module_ps_quantity_increment_decrement_btn_bg_start');
+                $data['ps_btn_bg_end'] = $this->config->get('module_ps_quantity_increment_decrement_btn_bg_end');
+                $data['ps_btn_border_color_all'] = $this->config->get('module_ps_quantity_increment_decrement_btn_border_color_all');
+                $data['ps_btn_border_color_bottom'] = $this->config->get('module_ps_quantity_increment_decrement_btn_border_color_bottom');
+                $data['ps_btn_hover_bg'] = $this->config->get('module_ps_quantity_increment_decrement_btn_hover_bg');
+                $data['ps_btn_active_bg'] = $this->config->get('module_ps_quantity_increment_decrement_btn_active_bg');
+                $data['ps_btn_disabled_bg'] = $this->config->get('module_ps_quantity_increment_decrement_btn_disabled_bg');
+            ]]></add>
+        </operation>
+    </file>
+    <file path="catalog/view/theme/default/template/extension/module/special.twig">
+        <operation>
+            <search><![CDATA[onclick="cart.add('{{ product.product_id }}');"]]></search>
+            <add position="replace"><![CDATA[onclick="cart.add('{{ product.product_id }}'{% if ps_status %}, PsIncrementDecrement.getQuantityValue('{{ product.product_id }}'){% endif %});"]]></add>
+        </operation>
+        <operation>
+            <search><![CDATA[<div class="button-group">]]></search>
+            <add position="before"><![CDATA[
+                {% if ps_status %}<div class="input-group ps-input-group" data-input-group="{{ product.product_id }}" style="--ps-text-align: {{ ps_text_align }};{% if ps_override_base_theme %} --ps-btn-color: {{ ps_btn_color }}; --ps-btn-bg-start: {{ ps_btn_bg_start }}; --ps-btn-bg-end: {{ ps_btn_bg_end }}; --ps-btn-border-color-all: {{ ps_btn_border_color_all }}; --ps-btn-border-color-bottom: {{ ps_btn_border_color_bottom }}; --ps-btn-hover-bg: {{ ps_btn_hover_bg }}; --ps-btn-active-bg: {{ ps_btn_active_bg }}; --ps-btn-disabled-bg: {{ ps_btn_disabled_bg }};{% endif %}">
+                    <span class="input-group-btn">
+                        <button type="button" data-ps-action="decrement" data-toggle="tooltip" title="{{ ps_button_decrement }}" class="btn {{ ps_base_theme }}{% if ps_override_base_theme %} btn-ps-custom{% endif %}"><i class="{{ ps_decrement_icon }}"></i></button>
+                    </span>
+                    <input type="text" inputmode="numeric" min="1" name="quantity" value="1" autocomplete="off" class="form-control" />
+                    <span class="input-group-btn">
+                        <button type="button" data-ps-action="increment" data-toggle="tooltip" title="{{ ps_button_increment }}" class="btn {{ ps_base_theme }}{% if ps_override_base_theme %} btn-ps-custom{% endif %}"><i class="{{ ps_increment_icon }}"></i></button>
+                    </span>
+                </div>{% endif %}
+            ]]></add>
+        </operation>
+    </file>
+    <file path="catalog/controller/product/compare.php">
+        <operation>
+            <search><![CDATA[$data['products'] = array();]]></search>
+            <add position="after"><![CDATA[
+                $this->load->library('playfulsparkle/ps_quantity_increment_decrement');
+
+                $data['ps_status'] = (
+                    $this->config->get('module_ps_quantity_increment_decrement_status') &&
+                    in_array('compare_page', (array) $this->config->get('module_ps_quantity_increment_decrement_show_on_page'))
+                );
+
+                $this->load->language('extension/module/ps_quantity_increment_decrement', 'ps_quantity_increment_decrement');
+
+                $ps_language = $this->language->get('ps_quantity_increment_decrement');
+
+                $data['ps_button_increment'] = $ps_language->get('button_increment');
+                $data['ps_button_decrement'] = $ps_language->get('button_decrement');
+
+                $data['ps_base_theme'] = $this->config->get('module_ps_quantity_increment_decrement_base_theme');
+                $data['ps_override_base_theme'] = $this->config->get('module_ps_quantity_increment_decrement_override_base_theme');
+
+                $data['ps_text_align'] = $this->config->get('module_ps_quantity_increment_decrement_text_align');
+
+                $ps_icons = $this->ps_quantity_increment_decrement->getButtonIconClasses($this->config->get('module_ps_quantity_increment_decrement_btn_icon'));
+
+                $data['ps_increment_icon'] = $ps_icons['increment'];
+                $data['ps_decrement_icon'] = $ps_icons['decrement'];
+
+                $data['ps_btn_color'] = $this->config->get('module_ps_quantity_increment_decrement_btn_color');
+                $data['ps_btn_bg_start'] = $this->config->get('module_ps_quantity_increment_decrement_btn_bg_start');
+                $data['ps_btn_bg_end'] = $this->config->get('module_ps_quantity_increment_decrement_btn_bg_end');
+                $data['ps_btn_border_color_all'] = $this->config->get('module_ps_quantity_increment_decrement_btn_border_color_all');
+                $data['ps_btn_border_color_bottom'] = $this->config->get('module_ps_quantity_increment_decrement_btn_border_color_bottom');
+                $data['ps_btn_hover_bg'] = $this->config->get('module_ps_quantity_increment_decrement_btn_hover_bg');
+                $data['ps_btn_active_bg'] = $this->config->get('module_ps_quantity_increment_decrement_btn_active_bg');
+                $data['ps_btn_disabled_bg'] = $this->config->get('module_ps_quantity_increment_decrement_btn_disabled_bg');
+            ]]></add>
+        </operation>
+    </file>
+    <file path="catalog/view/theme/default/template/product/compare.twig">
+        <operation>
+            <search><![CDATA[onclick="cart.add('{{ product.product_id }}', '{{ product.minimum }}');"]]></search>
+            <add position="replace"><![CDATA[onclick="cart.add('{{ product.product_id }}', {% if ps_status %}PsIncrementDecrement.getQuantityValue('{{ product.product_id }}'){% else %}'{{ product.minimum }}'{% endif %});"]]></add>
+        </operation>
+        <operation>
+            <search position="before"><![CDATA[<input type="button" value="{{ button_cart }}"]]></search>
+            <add><![CDATA[{% if ps_status %}<div class="input-group ps-input-group" data-input-group="{{ product.product_id }}" style="--ps-text-align: {{ ps_text_align }};{% if ps_override_base_theme %} --ps-btn-color: {{ ps_btn_color }}; --ps-btn-bg-start: {{ ps_btn_bg_start }}; --ps-btn-bg-end: {{ ps_btn_bg_end }}; --ps-btn-border-color-all: {{ ps_btn_border_color_all }}; --ps-btn-border-color-bottom: {{ ps_btn_border_color_bottom }}; --ps-btn-hover-bg: {{ ps_btn_hover_bg }}; --ps-btn-active-bg: {{ ps_btn_active_bg }}; --ps-btn-disabled-bg: {{ ps_btn_disabled_bg }};{% endif %}">
+    <span class="input-group-btn">
+        <button type="button" data-ps-action="decrement" data-toggle="tooltip" title="{{ ps_button_decrement }}" class="btn {{ ps_base_theme }}{% if ps_override_base_theme %} btn-ps-custom{% endif %}"><i class="{{ ps_decrement_icon }}"></i></button>
+    </span>
+    <input type="text" inputmode="numeric" min="{{ product.minimum }}" name="quantity" value="{{ product.minimum }}" autocomplete="off" class="form-control" />
+    <span class="input-group-btn">
+        <button type="button" data-ps-action="increment" data-toggle="tooltip" title="{{ ps_button_increment }}" class="btn {{ ps_base_theme }}{% if ps_override_base_theme %} btn-ps-custom{% endif %}"><i class="{{ ps_increment_icon }}"></i></button>
+    </span>
+</div>{% endif %}
+<input type="button" value="{{ button_cart }}"]]></add>
+        </operation>
+    </file>
+    <file path="catalog/controller/product/product.php">
+        <operation>
+            <search><![CDATA[if ($product_info) {]]></search>
+            <add position="after"><![CDATA[
+                $this->load->library('playfulsparkle/ps_quantity_increment_decrement');
+
+                $data['ps_status'] = (
+                    $this->config->get('module_ps_quantity_increment_decrement_status') &&
+                    in_array('detail_page', (array) $this->config->get('module_ps_quantity_increment_decrement_show_on_page'))
+                );
+
+                $this->load->language('extension/module/ps_quantity_increment_decrement', 'ps_quantity_increment_decrement');
+
+                $ps_language = $this->language->get('ps_quantity_increment_decrement');
+
+                $data['ps_button_increment'] = $ps_language->get('button_increment');
+                $data['ps_button_decrement'] = $ps_language->get('button_decrement');
+
+                $data['ps_base_theme'] = $this->config->get('module_ps_quantity_increment_decrement_base_theme');
+                $data['ps_override_base_theme'] = $this->config->get('module_ps_quantity_increment_decrement_override_base_theme');
+
+                $data['ps_text_align'] = $this->config->get('module_ps_quantity_increment_decrement_text_align');
+
+                $ps_icons = $this->ps_quantity_increment_decrement->getButtonIconClasses($this->config->get('module_ps_quantity_increment_decrement_btn_icon'));
+
+                $data['ps_increment_icon'] = $ps_icons['increment'];
+                $data['ps_decrement_icon'] = $ps_icons['decrement'];
+
+                $data['ps_btn_color'] = $this->config->get('module_ps_quantity_increment_decrement_btn_color');
+                $data['ps_btn_bg_start'] = $this->config->get('module_ps_quantity_increment_decrement_btn_bg_start');
+                $data['ps_btn_bg_end'] = $this->config->get('module_ps_quantity_increment_decrement_btn_bg_end');
+                $data['ps_btn_border_color_all'] = $this->config->get('module_ps_quantity_increment_decrement_btn_border_color_all');
+                $data['ps_btn_border_color_bottom'] = $this->config->get('module_ps_quantity_increment_decrement_btn_border_color_bottom');
+                $data['ps_btn_hover_bg'] = $this->config->get('module_ps_quantity_increment_decrement_btn_hover_bg');
+                $data['ps_btn_active_bg'] = $this->config->get('module_ps_quantity_increment_decrement_btn_active_bg');
+                $data['ps_btn_disabled_bg'] = $this->config->get('module_ps_quantity_increment_decrement_btn_disabled_bg');
+            ]]></add>
+        </operation>
+    </file>
+    <file path="catalog/view/theme/default/template/product/product.twig">
+        <operation>
+            <search><![CDATA[<input type="text" name="quantity" value="{{ minimum }}" size="2" id="input-quantity" class="form-control" />]]></search>
+            <add position="replace"><![CDATA[
+                {% if ps_status %}<div class="input-group ps-input-group" data-input-group="{{ product_id }}" style="--ps-text-align: {{ ps_text_align }};{% if ps_override_base_theme %} --ps-btn-color: {{ ps_btn_color }}; --ps-btn-bg-start: {{ ps_btn_bg_start }}; --ps-btn-bg-end: {{ ps_btn_bg_end }}; --ps-btn-border-color-all: {{ ps_btn_border_color_all }}; --ps-btn-border-color-bottom: {{ ps_btn_border_color_bottom }}; --ps-btn-hover-bg: {{ ps_btn_hover_bg }}; --ps-btn-active-bg: {{ ps_btn_active_bg }}; --ps-btn-disabled-bg: {{ ps_btn_disabled_bg }};{% endif %}">
+                    <span class="input-group-btn">
+                        <button type="button" data-ps-action="decrement" data-toggle="tooltip" title="{{ ps_button_decrement }}" class="btn {{ ps_base_theme }}{% if ps_override_base_theme %} btn-ps-custom{% endif %}"><i class="{{ ps_decrement_icon }}"></i></button>
+                    </span>
+                    <input type="text" inputmode="numeric" min="{{ minimum }}" name="quantity" value="{{ minimum }}" autocomplete="off" id="input-quantity" class="form-control" />
+                    <span class="input-group-btn">
+                        <button type="button" data-ps-action="increment" data-toggle="tooltip" title="{{ ps_button_increment }}" class="btn {{ ps_base_theme }}{% if ps_override_base_theme %} btn-ps-custom{% endif %}"><i class="{{ ps_increment_icon }}"></i></button>
+                    </span>
+                </div>
+                {% else %}
+                <input type="text" name="quantity" value="{{ minimum }}" size="2" id="input-quantity" class="form-control" />
+                {% endif %}
+            ]]></add>
+        </operation>
+    </file>
+    <file path="catalog/controller/product/category.php">
+        <operation>
+            <search><![CDATA[$data['products'] = array();]]></search>
+            <add position="after"><![CDATA[
+                $this->load->library('playfulsparkle/ps_quantity_increment_decrement');
+
+                $data['ps_status'] = (
+                    $this->config->get('module_ps_quantity_increment_decrement_status') &&
+                    in_array('category_page', (array) $this->config->get('module_ps_quantity_increment_decrement_show_on_page'))
+                );
+
+                $this->load->language('extension/module/ps_quantity_increment_decrement', 'ps_quantity_increment_decrement');
+
+                $ps_language = $this->language->get('ps_quantity_increment_decrement');
+
+                $data['ps_button_increment'] = $ps_language->get('button_increment');
+                $data['ps_button_decrement'] = $ps_language->get('button_decrement');
+
+                $data['ps_base_theme'] = $this->config->get('module_ps_quantity_increment_decrement_base_theme');
+                $data['ps_override_base_theme'] = $this->config->get('module_ps_quantity_increment_decrement_override_base_theme');
+
+                $data['ps_text_align'] = $this->config->get('module_ps_quantity_increment_decrement_text_align');
+
+                $ps_icons = $this->ps_quantity_increment_decrement->getButtonIconClasses($this->config->get('module_ps_quantity_increment_decrement_btn_icon'));
+
+                $data['ps_increment_icon'] = $ps_icons['increment'];
+                $data['ps_decrement_icon'] = $ps_icons['decrement'];
+
+                $data['ps_btn_color'] = $this->config->get('module_ps_quantity_increment_decrement_btn_color');
+                $data['ps_btn_bg_start'] = $this->config->get('module_ps_quantity_increment_decrement_btn_bg_start');
+                $data['ps_btn_bg_end'] = $this->config->get('module_ps_quantity_increment_decrement_btn_bg_end');
+                $data['ps_btn_border_color_all'] = $this->config->get('module_ps_quantity_increment_decrement_btn_border_color_all');
+                $data['ps_btn_border_color_bottom'] = $this->config->get('module_ps_quantity_increment_decrement_btn_border_color_bottom');
+                $data['ps_btn_hover_bg'] = $this->config->get('module_ps_quantity_increment_decrement_btn_hover_bg');
+                $data['ps_btn_active_bg'] = $this->config->get('module_ps_quantity_increment_decrement_btn_active_bg');
+                $data['ps_btn_disabled_bg'] = $this->config->get('module_ps_quantity_increment_decrement_btn_disabled_bg');
+            ]]></add>
+        </operation>
+    </file>
+    <file path="catalog/view/theme/default/template/product/category.twig">
+        <operation>
+            <search><![CDATA[onclick="cart.add('{{ product.product_id }}', '{{ product.minimum }}');"]]></search>
+            <add position="replace"><![CDATA[onclick="cart.add('{{ product.product_id }}', {% if ps_status %}PsIncrementDecrement.getQuantityValue('{{ product.product_id }}'){% else %}'{{ product.minimum }}'{% endif %});"]]></add>
+        </operation>
+        <operation>
+            <search><![CDATA[<div class="button-group">]]></search>
+            <add position="before"><![CDATA[
+                {% if ps_status %}<div class="input-group ps-input-group" data-input-group="{{ product.product_id }}" style="--ps-text-align: {{ ps_text_align }};{% if ps_override_base_theme %} --ps-btn-color: {{ ps_btn_color }}; --ps-btn-bg-start: {{ ps_btn_bg_start }}; --ps-btn-bg-end: {{ ps_btn_bg_end }}; --ps-btn-border-color-all: {{ ps_btn_border_color_all }}; --ps-btn-border-color-bottom: {{ ps_btn_border_color_bottom }}; --ps-btn-hover-bg: {{ ps_btn_hover_bg }}; --ps-btn-active-bg: {{ ps_btn_active_bg }}; --ps-btn-disabled-bg: {{ ps_btn_disabled_bg }};{% endif %}">
+                    <span class="input-group-btn">
+                        <button type="button" data-ps-action="decrement" data-toggle="tooltip" title="{{ ps_button_decrement }}" class="btn {{ ps_base_theme }}{% if ps_override_base_theme %} btn-ps-custom{% endif %}"><i class="{{ ps_decrement_icon }}"></i></button>
+                    </span>
+                    <input type="text" inputmode="numeric" min="{{ product.minimum }}" name="quantity" value="{{ product.minimum }}" autocomplete="off" class="form-control" />
+                    <span class="input-group-btn">
+                        <button type="button" data-ps-action="increment" data-toggle="tooltip" title="{{ ps_button_increment }}" class="btn {{ ps_base_theme }}{% if ps_override_base_theme %} btn-ps-custom{% endif %}"><i class="{{ ps_increment_icon }}"></i></button>
+                    </span>
+                </div>{% endif %}
+            ]]></add>
+        </operation>
+    </file>
+    <file path="catalog/controller/product/manufacturer.php">
+        <operation>
+            <search><![CDATA[$data['products'] = array();]]></search>
+            <add position="after"><![CDATA[
+                $this->load->library('playfulsparkle/ps_quantity_increment_decrement');
+
+                $data['ps_status'] = (
+                    $this->config->get('module_ps_quantity_increment_decrement_status') &&
+                    in_array('manufacturer_page', (array) $this->config->get('module_ps_quantity_increment_decrement_show_on_page'))
+                );
+
+                $this->load->language('extension/module/ps_quantity_increment_decrement', 'ps_quantity_increment_decrement');
+
+                $ps_language = $this->language->get('ps_quantity_increment_decrement');
+
+                $data['ps_button_increment'] = $ps_language->get('button_increment');
+                $data['ps_button_decrement'] = $ps_language->get('button_decrement');
+
+                $data['ps_base_theme'] = $this->config->get('module_ps_quantity_increment_decrement_base_theme');
+                $data['ps_override_base_theme'] = $this->config->get('module_ps_quantity_increment_decrement_override_base_theme');
+
+                $data['ps_text_align'] = $this->config->get('module_ps_quantity_increment_decrement_text_align');
+
+                $ps_icons = $this->ps_quantity_increment_decrement->getButtonIconClasses($this->config->get('module_ps_quantity_increment_decrement_btn_icon'));
+
+                $data['ps_increment_icon'] = $ps_icons['increment'];
+                $data['ps_decrement_icon'] = $ps_icons['decrement'];
+
+                $data['ps_btn_color'] = $this->config->get('module_ps_quantity_increment_decrement_btn_color');
+                $data['ps_btn_bg_start'] = $this->config->get('module_ps_quantity_increment_decrement_btn_bg_start');
+                $data['ps_btn_bg_end'] = $this->config->get('module_ps_quantity_increment_decrement_btn_bg_end');
+                $data['ps_btn_border_color_all'] = $this->config->get('module_ps_quantity_increment_decrement_btn_border_color_all');
+                $data['ps_btn_border_color_bottom'] = $this->config->get('module_ps_quantity_increment_decrement_btn_border_color_bottom');
+                $data['ps_btn_hover_bg'] = $this->config->get('module_ps_quantity_increment_decrement_btn_hover_bg');
+                $data['ps_btn_active_bg'] = $this->config->get('module_ps_quantity_increment_decrement_btn_active_bg');
+                $data['ps_btn_disabled_bg'] = $this->config->get('module_ps_quantity_increment_decrement_btn_disabled_bg');
+            ]]></add>
+        </operation>
+    </file>
+    <file path="catalog/view/theme/default/template/product/manufacturer_info.twig">
+        <operation>
+            <search><![CDATA[onclick="cart.add('{{ product.product_id }}', '{{ product.minimum }}');"]]></search>
+            <add position="replace"><![CDATA[onclick="cart.add('{{ product.product_id }}', {% if ps_status %}PsIncrementDecrement.getQuantityValue('{{ product.product_id }}'){% else %}'{{ product.minimum }}'{% endif %});"]]></add>
+        </operation>
+        <operation>
+            <search><![CDATA[<div class="button-group">]]></search>
+            <add position="before"><![CDATA[
+                {% if ps_status %}<div class="input-group ps-input-group" data-input-group="{{ product.product_id }}" style="--ps-text-align: {{ ps_text_align }};{% if ps_override_base_theme %} --ps-btn-color: {{ ps_btn_color }}; --ps-btn-bg-start: {{ ps_btn_bg_start }}; --ps-btn-bg-end: {{ ps_btn_bg_end }}; --ps-btn-border-color-all: {{ ps_btn_border_color_all }}; --ps-btn-border-color-bottom: {{ ps_btn_border_color_bottom }}; --ps-btn-hover-bg: {{ ps_btn_hover_bg }}; --ps-btn-active-bg: {{ ps_btn_active_bg }}; --ps-btn-disabled-bg: {{ ps_btn_disabled_bg }};{% endif %}">
+                    <span class="input-group-btn">
+                        <button type="button" data-ps-action="decrement" data-toggle="tooltip" title="{{ ps_button_decrement }}" class="btn {{ ps_base_theme }}{% if ps_override_base_theme %} btn-ps-custom{% endif %}"><i class="{{ ps_decrement_icon }}"></i></button>
+                    </span>
+                    <input type="text" inputmode="numeric" min="{{ product.minimum }}" name="quantity" value="{{ product.minimum }}" autocomplete="off" class="form-control" />
+                    <span class="input-group-btn">
+                        <button type="button" data-ps-action="increment" data-toggle="tooltip" title="{{ ps_button_increment }}" class="btn {{ ps_base_theme }}{% if ps_override_base_theme %} btn-ps-custom{% endif %}"><i class="{{ ps_increment_icon }}"></i></button>
+                    </span>
+                </div>{% endif %}
+            ]]></add>
+        </operation>
+    </file>
+    <file path="catalog/controller/product/search.php">
+        <operation>
+            <search><![CDATA[$data['products'] = array();]]></search>
+            <add position="after"><![CDATA[
+                $this->load->library('playfulsparkle/ps_quantity_increment_decrement');
+
+                $data['ps_status'] = (
+                    $this->config->get('module_ps_quantity_increment_decrement_status') &&
+                    in_array('search_page', (array) $this->config->get('module_ps_quantity_increment_decrement_show_on_page'))
+                );
+
+                $this->load->language('extension/module/ps_quantity_increment_decrement', 'ps_quantity_increment_decrement');
+
+                $ps_language = $this->language->get('ps_quantity_increment_decrement');
+
+                $data['ps_button_increment'] = $ps_language->get('button_increment');
+                $data['ps_button_decrement'] = $ps_language->get('button_decrement');
+
+                $data['ps_base_theme'] = $this->config->get('module_ps_quantity_increment_decrement_base_theme');
+                $data['ps_override_base_theme'] = $this->config->get('module_ps_quantity_increment_decrement_override_base_theme');
+
+                $data['ps_text_align'] = $this->config->get('module_ps_quantity_increment_decrement_text_align');
+
+                $ps_icons = $this->ps_quantity_increment_decrement->getButtonIconClasses($this->config->get('module_ps_quantity_increment_decrement_btn_icon'));
+
+                $data['ps_increment_icon'] = $ps_icons['increment'];
+                $data['ps_decrement_icon'] = $ps_icons['decrement'];
+
+                $data['ps_btn_color'] = $this->config->get('module_ps_quantity_increment_decrement_btn_color');
+                $data['ps_btn_bg_start'] = $this->config->get('module_ps_quantity_increment_decrement_btn_bg_start');
+                $data['ps_btn_bg_end'] = $this->config->get('module_ps_quantity_increment_decrement_btn_bg_end');
+                $data['ps_btn_border_color_all'] = $this->config->get('module_ps_quantity_increment_decrement_btn_border_color_all');
+                $data['ps_btn_border_color_bottom'] = $this->config->get('module_ps_quantity_increment_decrement_btn_border_color_bottom');
+                $data['ps_btn_hover_bg'] = $this->config->get('module_ps_quantity_increment_decrement_btn_hover_bg');
+                $data['ps_btn_active_bg'] = $this->config->get('module_ps_quantity_increment_decrement_btn_active_bg');
+                $data['ps_btn_disabled_bg'] = $this->config->get('module_ps_quantity_increment_decrement_btn_disabled_bg');
+            ]]></add>
+        </operation>
+    </file>
+    <file path="catalog/view/theme/default/template/product/search.twig">
+        <operation>
+            <search><![CDATA[onclick="cart.add('{{ product.product_id }}', '{{ product.minimum }}');"]]></search>
+            <add position="replace"><![CDATA[onclick="cart.add('{{ product.product_id }}', {% if ps_status %}PsIncrementDecrement.getQuantityValue('{{ product.product_id }}'){% else %}'{{ product.minimum }}'{% endif %});"]]></add>
+        </operation>
+        <operation>
+            <search><![CDATA[<div class="button-group">]]></search>
+            <add position="before"><![CDATA[
+                {% if ps_status %}<div class="input-group ps-input-group" data-input-group="{{ product.product_id }}" style="--ps-text-align: {{ ps_text_align }};{% if ps_override_base_theme %} --ps-btn-color: {{ ps_btn_color }}; --ps-btn-bg-start: {{ ps_btn_bg_start }}; --ps-btn-bg-end: {{ ps_btn_bg_end }}; --ps-btn-border-color-all: {{ ps_btn_border_color_all }}; --ps-btn-border-color-bottom: {{ ps_btn_border_color_bottom }}; --ps-btn-hover-bg: {{ ps_btn_hover_bg }}; --ps-btn-active-bg: {{ ps_btn_active_bg }}; --ps-btn-disabled-bg: {{ ps_btn_disabled_bg }};{% endif %}">
+                    <span class="input-group-btn">
+                        <button type="button" data-ps-action="decrement" data-toggle="tooltip" title="{{ ps_button_decrement }}" class="btn {{ ps_base_theme }}{% if ps_override_base_theme %} btn-ps-custom{% endif %}"><i class="{{ ps_decrement_icon }}"></i></button>
+                    </span>
+                    <input type="text" inputmode="numeric" min="{{ product.minimum }}" name="quantity" value="{{ product.minimum }}" autocomplete="off" class="form-control" />
+                    <span class="input-group-btn">
+                        <button type="button" data-ps-action="increment" data-toggle="tooltip" title="{{ ps_button_increment }}" class="btn {{ ps_base_theme }}{% if ps_override_base_theme %} btn-ps-custom{% endif %}"><i class="{{ ps_increment_icon }}"></i></button>
+                    </span>
+                </div>{% endif %}
+            ]]></add>
+        </operation>
+    </file>
+    <file path="catalog/controller/product/special.php">
+        <operation>
+            <search><![CDATA[$data['products'] = array();]]></search>
+            <add position="after"><![CDATA[
+                $this->load->library('playfulsparkle/ps_quantity_increment_decrement');
+
+                $data['ps_status'] = (
+                    $this->config->get('module_ps_quantity_increment_decrement_status') &&
+                    in_array('special_page', (array) $this->config->get('module_ps_quantity_increment_decrement_show_on_page'))
+                );
+
+                $this->load->language('extension/module/ps_quantity_increment_decrement', 'ps_quantity_increment_decrement');
+
+                $ps_language = $this->language->get('ps_quantity_increment_decrement');
+
+                $data['ps_button_increment'] = $ps_language->get('button_increment');
+                $data['ps_button_decrement'] = $ps_language->get('button_decrement');
+
+                $data['ps_base_theme'] = $this->config->get('module_ps_quantity_increment_decrement_base_theme');
+                $data['ps_override_base_theme'] = $this->config->get('module_ps_quantity_increment_decrement_override_base_theme');
+
+                $data['ps_text_align'] = $this->config->get('module_ps_quantity_increment_decrement_text_align');
+
+                $ps_icons = $this->ps_quantity_increment_decrement->getButtonIconClasses($this->config->get('module_ps_quantity_increment_decrement_btn_icon'));
+
+                $data['ps_increment_icon'] = $ps_icons['increment'];
+                $data['ps_decrement_icon'] = $ps_icons['decrement'];
+
+                $data['ps_btn_color'] = $this->config->get('module_ps_quantity_increment_decrement_btn_color');
+                $data['ps_btn_bg_start'] = $this->config->get('module_ps_quantity_increment_decrement_btn_bg_start');
+                $data['ps_btn_bg_end'] = $this->config->get('module_ps_quantity_increment_decrement_btn_bg_end');
+                $data['ps_btn_border_color_all'] = $this->config->get('module_ps_quantity_increment_decrement_btn_border_color_all');
+                $data['ps_btn_border_color_bottom'] = $this->config->get('module_ps_quantity_increment_decrement_btn_border_color_bottom');
+                $data['ps_btn_hover_bg'] = $this->config->get('module_ps_quantity_increment_decrement_btn_hover_bg');
+                $data['ps_btn_active_bg'] = $this->config->get('module_ps_quantity_increment_decrement_btn_active_bg');
+                $data['ps_btn_disabled_bg'] = $this->config->get('module_ps_quantity_increment_decrement_btn_disabled_bg');
+            ]]></add>
+        </operation>
+    </file>
+    <file path="catalog/view/theme/default/template/product/special.twig">
+        <operation>
+            <search><![CDATA[onclick="cart.add('{{ product.product_id }}', '{{ product.minimum }}');"]]></search>
+            <add position="replace"><![CDATA[onclick="cart.add('{{ product.product_id }}', {% if ps_status %}PsIncrementDecrement.getQuantityValue('{{ product.product_id }}'){% else %}'{{ product.minimum }}'{% endif %});"]]></add>
+        </operation>
+        <operation>
+            <search><![CDATA[<div class="button-group">]]></search>
+            <add position="before"><![CDATA[
+                {% if ps_status %}<div class="input-group ps-input-group" data-input-group="{{ product.product_id }}" style="--ps-text-align: {{ ps_text_align }};{% if ps_override_base_theme %} --ps-btn-color: {{ ps_btn_color }}; --ps-btn-bg-start: {{ ps_btn_bg_start }}; --ps-btn-bg-end: {{ ps_btn_bg_end }}; --ps-btn-border-color-all: {{ ps_btn_border_color_all }}; --ps-btn-border-color-bottom: {{ ps_btn_border_color_bottom }}; --ps-btn-hover-bg: {{ ps_btn_hover_bg }}; --ps-btn-active-bg: {{ ps_btn_active_bg }}; --ps-btn-disabled-bg: {{ ps_btn_disabled_bg }};{% endif %}">
+                    <span class="input-group-btn">
+                        <button type="button" data-ps-action="decrement" data-toggle="tooltip" title="{{ ps_button_decrement }}" class="btn {{ ps_base_theme }}{% if ps_override_base_theme %} btn-ps-custom{% endif %}"><i class="{{ ps_decrement_icon }}"></i></button>
+                    </span>
+                    <input type="text" inputmode="numeric" min="{{ product.minimum }}" name="quantity" value="{{ product.minimum }}" autocomplete="off" class="form-control" />
+                    <span class="input-group-btn">
+                        <button type="button" data-ps-action="increment" data-toggle="tooltip" title="{{ ps_button_increment }}" class="btn {{ ps_base_theme }}{% if ps_override_base_theme %} btn-ps-custom{% endif %}"><i class="{{ ps_increment_icon }}"></i></button>
+                    </span>
+                </div>{% endif %}
+            ]]></add>
+        </operation>
+    </file>
+    <file path="catalog/controller/checkout/cart.php">
+        <operation>
+            <search><![CDATA[$data['products'] = array();]]></search>
+            <add position="after"><![CDATA[
+                $this->load->library('playfulsparkle/ps_quantity_increment_decrement');
+
+                $data['ps_status'] = (
+                    $this->config->get('module_ps_quantity_increment_decrement_status') &&
+                    in_array('cart_page', (array) $this->config->get('module_ps_quantity_increment_decrement_show_on_page'))
+                );
+
+                $this->load->language('extension/module/ps_quantity_increment_decrement', 'ps_quantity_increment_decrement');
+
+                $ps_language = $this->language->get('ps_quantity_increment_decrement');
+
+                $data['ps_button_increment'] = $ps_language->get('button_increment');
+                $data['ps_button_decrement'] = $ps_language->get('button_decrement');
+
+                $data['ps_base_theme'] = $this->config->get('module_ps_quantity_increment_decrement_base_theme');
+                $data['ps_override_base_theme'] = $this->config->get('module_ps_quantity_increment_decrement_override_base_theme');
+
+                $data['ps_text_align'] = $this->config->get('module_ps_quantity_increment_decrement_text_align');
+
+                $ps_icons = $this->ps_quantity_increment_decrement->getButtonIconClasses($this->config->get('module_ps_quantity_increment_decrement_btn_icon'));
+
+                $data['ps_increment_icon'] = $ps_icons['increment'];
+                $data['ps_decrement_icon'] = $ps_icons['decrement'];
+
+                $data['ps_btn_color'] = $this->config->get('module_ps_quantity_increment_decrement_btn_color');
+                $data['ps_btn_bg_start'] = $this->config->get('module_ps_quantity_increment_decrement_btn_bg_start');
+                $data['ps_btn_bg_end'] = $this->config->get('module_ps_quantity_increment_decrement_btn_bg_end');
+                $data['ps_btn_border_color_all'] = $this->config->get('module_ps_quantity_increment_decrement_btn_border_color_all');
+                $data['ps_btn_border_color_bottom'] = $this->config->get('module_ps_quantity_increment_decrement_btn_border_color_bottom');
+                $data['ps_btn_hover_bg'] = $this->config->get('module_ps_quantity_increment_decrement_btn_hover_bg');
+                $data['ps_btn_active_bg'] = $this->config->get('module_ps_quantity_increment_decrement_btn_active_bg');
+                $data['ps_btn_disabled_bg'] = $this->config->get('module_ps_quantity_increment_decrement_btn_disabled_bg');
+            ]]></add>
+        </operation>
+        <operation>
+            <search><![CDATA[$data['products'][] = array(]]></search>
+            <add position="after"><![CDATA['minimum' => $product['minimum'],]]></add>
+        </operation>
+    </file>
+    <file path="catalog/view/theme/default/template/checkout/cart.twig">
+        <operation>
+            <search index="0"><![CDATA[<div class="input-group btn-block" style="max-width: 200px;">]]></search>
+            <add position="replace"><![CDATA[{% if ps_status %}<div class="input-group ps-input-group" data-input-group="{{ product.cart_id }}" style="--ps-text-align: {{ ps_text_align }};{% if ps_override_base_theme %} --ps-btn-color: {{ ps_btn_color }}; --ps-btn-bg-start: {{ ps_btn_bg_start }}; --ps-btn-bg-end: {{ ps_btn_bg_end }}; --ps-btn-border-color-all: {{ ps_btn_border_color_all }}; --ps-btn-border-color-bottom: {{ ps_btn_border_color_bottom }}; --ps-btn-hover-bg: {{ ps_btn_hover_bg }}; --ps-btn-active-bg: {{ ps_btn_active_bg }}; --ps-btn-disabled-bg: {{ ps_btn_disabled_bg }};{% endif %} max-width: 200px;">
+                <span class="input-group-btn">
+                    <button type="button" data-ps-action="decrement" data-toggle="tooltip" title="{{ ps_button_decrement }}" class="btn {{ ps_base_theme }}{% if ps_override_base_theme %} btn-ps-custom{% endif %}"><i class="{{ ps_decrement_icon }}"></i></button>
+                </span>
+            {% else %}
+            <div class="input-group btn-block" style="max-width: 200px;">
+            {% endif %}]]></add>
+        </operation>
+        <operation>
+            <search><![CDATA[value="{{ product.quantity }}"]]></search>
+            <add position="replace"><![CDATA[{% if ps_status %}
+            value="{{ product.quantity }}" inputmode="numeric" min="{{ product.minimum }}" autocomplete="off"
+            {% else %}
+            value="{{ product.quantity }}"
+            {% endif %}]]></add>
+        </operation>
+        <operation>
+            <search index="1"><![CDATA[<span class="input-group-btn">]]></search>
+            <add position="after"><![CDATA[{% if ps_status %}<button type="button" data-ps-action="increment" data-toggle="tooltip" title="{{ ps_button_increment }}" class="btn {{ ps_base_theme }}{% if ps_override_base_theme %} btn-ps-custom{% endif %}"><i class="{{ ps_increment_icon }}"></i></button>{% endif %}]]></add>
+        </operation>
+    </file>
+    <file path="catalog/controller/account/wishlist.php">
+        <operation>
+            <search><![CDATA[$data['products'] = array();]]></search>
+            <add position="after"><![CDATA[
+                $this->load->library('playfulsparkle/ps_quantity_increment_decrement');
+
+                $data['ps_status'] = (
+                    $this->config->get('module_ps_quantity_increment_decrement_status') &&
+                    in_array('wishlist_page', (array) $this->config->get('module_ps_quantity_increment_decrement_show_on_page'))
+                );
+
+                $this->load->language('extension/module/ps_quantity_increment_decrement', 'ps_quantity_increment_decrement');
+
+                $ps_language = $this->language->get('ps_quantity_increment_decrement');
+
+                $data['ps_button_increment'] = $ps_language->get('button_increment');
+                $data['ps_button_decrement'] = $ps_language->get('button_decrement');
+
+                $data['ps_base_theme'] = $this->config->get('module_ps_quantity_increment_decrement_base_theme');
+                $data['ps_override_base_theme'] = $this->config->get('module_ps_quantity_increment_decrement_override_base_theme');
+
+                $data['ps_text_align'] = $this->config->get('module_ps_quantity_increment_decrement_text_align');
+
+                $ps_icons = $this->ps_quantity_increment_decrement->getButtonIconClasses($this->config->get('module_ps_quantity_increment_decrement_btn_icon'));
+
+                $data['ps_increment_icon'] = $ps_icons['increment'];
+                $data['ps_decrement_icon'] = $ps_icons['decrement'];
+
+                $data['ps_btn_color'] = $this->config->get('module_ps_quantity_increment_decrement_btn_color');
+                $data['ps_btn_bg_start'] = $this->config->get('module_ps_quantity_increment_decrement_btn_bg_start');
+                $data['ps_btn_bg_end'] = $this->config->get('module_ps_quantity_increment_decrement_btn_bg_end');
+                $data['ps_btn_border_color_all'] = $this->config->get('module_ps_quantity_increment_decrement_btn_border_color_all');
+                $data['ps_btn_border_color_bottom'] = $this->config->get('module_ps_quantity_increment_decrement_btn_border_color_bottom');
+                $data['ps_btn_hover_bg'] = $this->config->get('module_ps_quantity_increment_decrement_btn_hover_bg');
+                $data['ps_btn_active_bg'] = $this->config->get('module_ps_quantity_increment_decrement_btn_active_bg');
+                $data['ps_btn_disabled_bg'] = $this->config->get('module_ps_quantity_increment_decrement_btn_disabled_bg');
+            ]]></add>
+        </operation>
+    </file>
+    <file path="catalog/view/theme/default/template/account/wishlist.twig">
+        <operation>
+            <search><![CDATA[onclick="cart.add('{{ product.product_id }}');"]]></search>
+            <add position="replace"><![CDATA[onclick="cart.add('{{ product.product_id }}'{% if ps_status %}, PsIncrementDecrement.getQuantityValue('{{ product.product_id }}'){% endif %});"]]></add>
+        </operation>
+        <operation>
+            <search position="before"><![CDATA[<button type="button" onclick="cart.add]]></search>
+            <add><![CDATA[{% if ps_status %}<div class="input-group ps-input-group" data-input-group="{{ product.product_id }}" style="--ps-text-align: {{ ps_text_align }};{% if ps_override_base_theme %} --ps-btn-color: {{ ps_btn_color }}; --ps-btn-bg-start: {{ ps_btn_bg_start }}; --ps-btn-bg-end: {{ ps_btn_bg_end }}; --ps-btn-border-color-all: {{ ps_btn_border_color_all }}; --ps-btn-border-color-bottom: {{ ps_btn_border_color_bottom }}; --ps-btn-hover-bg: {{ ps_btn_hover_bg }}; --ps-btn-active-bg: {{ ps_btn_active_bg }}; --ps-btn-disabled-bg: {{ ps_btn_disabled_bg }};{% endif %}">
+    <span class="input-group-btn">
+        <button type="button" data-ps-action="decrement" data-toggle="tooltip" title="{{ ps_button_decrement }}" class="btn {{ ps_base_theme }}{% if ps_override_base_theme %} btn-ps-custom{% endif %}"><i class="{{ ps_decrement_icon }}"></i></button>
+    </span>
+    <input type="text" inputmode="numeric" min="1" name="quantity" value="1" autocomplete="off" class="form-control" />
+    <span class="input-group-btn">
+        <button type="button" data-ps-action="increment" data-toggle="tooltip" title="{{ ps_button_increment }}" class="btn {{ ps_base_theme }}{% if ps_override_base_theme %} btn-ps-custom{% endif %}"><i class="{{ ps_increment_icon }}"></i></button>
+{% endif %}
+<button type="button" onclick="cart.add]]></add>
+        </operation>
+        <operation>
+            <search position="after"><![CDATA[<i class="fa fa-times"></i></a>]]></search>
+            <add><![CDATA[<i class="fa fa-times"></i></a>{% if ps_status %}</span></div>{% endif %}]]></add>
+        </operation>
+    </file>
+</modification>

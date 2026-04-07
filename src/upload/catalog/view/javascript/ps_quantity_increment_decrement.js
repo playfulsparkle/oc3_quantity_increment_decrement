@@ -1,63 +1,70 @@
-(function (global) {
-    'use strict';
+'use strict';
 
-    const SELECTOR_ACTION = '[data-ps-action]';
-    const ATTR_MINIMUM = 'data-ps-minimum';
-    const SELECTOR_CONTAINER = '.ps-input-group';
-    const SELECTOR_INPUT = 'input[name="quantity"]';
+var PsIncrementDecrement = {
+    // Configuration
+    SELECTOR_ACTION: '[data-ps-action]',
+    SELECTOR_CONTAINER: '.ps-input-group',
+    SELECTOR_INPUT: 'input[name^="quantity"]',
 
-    const toInteger = (value, fallback, validator) => {
-        const num = parseFloat(value);
+    // Core helpers
+    toInteger: function (value, fallback, validator) {
+        var num = parseFloat(value);
         if (isNaN(num)) return fallback;
-        const intVal = Math.floor(num);
+        var intVal = Math.floor(num);
         return (validator && !validator(intVal)) ? fallback : intVal;
-    };
+    },
 
-    const getBounds = (input) => {
-        const min = toInteger(input.getAttribute(ATTR_MINIMUM), 1, n => n >= 0);
-        return { min, max: Infinity };
-    };
+    getBounds: function (input) {
+        var minAttr = input.getAttribute('min');
+        var maxAttr = input.getAttribute('max');
 
-    const clampAndWrite = (input, value, min, max) => {
-        const clamped = Math.min(Math.max(value, min), max);
+        var min = this.toInteger(minAttr, 1, function (n) { return n >= 0; });
+        var max = this.toInteger(maxAttr, Infinity, function (n) { return n >= min; });
+
+        return { min: min, max: max };
+    },
+
+    clampAndWrite: function (input, value, min, max) {
+        var clamped = Math.min(Math.max(value, min), max);
         if (String(input.value) !== String(clamped)) {
             input.value = clamped;
         }
-    };
+    },
 
-    const getCurrentValue = (input, bounds) => {
-        const raw = input.value;
-        let numeric = toInteger(raw, bounds.min);
-        // Ensure within bounds
+    getCurrentValue: function (input, bounds) {
+        var raw = input.value;
+        var numeric = this.toInteger(raw, bounds.min);
         if (numeric < bounds.min) numeric = bounds.min;
         if (numeric > bounds.max) numeric = bounds.max;
         return numeric;
-    };
+    },
 
-    const getQuantityValue = (container) => {
+    getQuantityValue: function (productId) {
+        var container = document.querySelector('[data-input-group="' + productId + '"]');
         if (!container) return null;
-        const input = container.querySelector(SELECTOR_INPUT);
+        var input = container.querySelector(this.SELECTOR_INPUT);
         if (!input) return null;
-        const bounds = getBounds(input);
-        return getCurrentValue(input, bounds);
-    };
+        var bounds = this.getBounds(input);
+        return this.getCurrentValue(input, bounds);
+    },
 
-    const onClickHandler = (e) => {
-        const button = e.target.closest(SELECTOR_ACTION);
+    // Event handlers (bound to the object)
+    onClickHandler: function (e) {
+        var button = e.target.closest(this.SELECTOR_ACTION);
         if (!button) return;
 
-        const container = button.closest(SELECTOR_CONTAINER);
+        var container = button.closest(this.SELECTOR_CONTAINER);
         if (!container) return;
 
-        const input = container.querySelector(SELECTOR_INPUT);
+        var input = container.querySelector(this.SELECTOR_INPUT);
         if (!input) return;
 
         e.preventDefault();
 
-        const bounds = getBounds(input);
-        const current = getCurrentValue(input, bounds);
-        const action = button.dataset.psAction;
-        let nextValue = current;
+        var bounds = this.getBounds(input);
+        var current = this.getCurrentValue(input, bounds);
+        var action = button.dataset.psAction;
+        var nextValue = current;
 
         if (action === 'increment') {
             nextValue = Math.min(current + 1, bounds.max);
@@ -67,35 +74,25 @@
             return;
         }
 
-        clampAndWrite(input, nextValue, bounds.min, bounds.max);
-    };
+        this.clampAndWrite(input, nextValue, bounds.min, bounds.max);
+    },
 
-    const onChangeHandler = (e) => {
-        const input = e.target.closest(SELECTOR_INPUT);
+    onChangeHandler: function (e) {
+        var input = e.target.closest(this.SELECTOR_INPUT);
         if (!input) return;
 
-        const bounds = getBounds(input);
-        const current = getCurrentValue(input, bounds);
-        clampAndWrite(input, current, bounds.min, bounds.max);
-    };
+        var bounds = this.getBounds(input);
+        var current = this.getCurrentValue(input, bounds);
+        this.clampAndWrite(input, current, bounds.min, bounds.max);
+    },
 
-    const PsIncrementDecrement = {
-        toInteger,
-        getBounds,
-        clampAndWrite,
-        getCurrentValue,
-        getQuantityValue
-    };
-
-    let isAttached = false;
-
-    if (!isAttached) {
-        document.addEventListener('click', onClickHandler);
-        document.addEventListener('change', onChangeHandler);
-        isAttached = true;
+    // Initialization
+    init: function () {
+        if (this._isAttached) return;
+        document.addEventListener('click', this.onClickHandler.bind(this));
+        document.addEventListener('change', this.onChangeHandler.bind(this));
+        this._isAttached = true;
     }
+};
 
-    // Expose globally and auto-initialize
-    global.PsIncrementDecrement = PsIncrementDecrement;
-
-})(typeof window !== 'undefined' ? window : this);
+PsIncrementDecrement.init();

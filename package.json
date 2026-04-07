@@ -1,0 +1,30 @@
+{
+  "name": "oc3_quantity_increment_decrement",
+  "version": "1.0.0",
+  "description": "Playful Sparkle - Quantity Increment Decrement for OpenCart 3",
+  "main": "index.js",
+  "scripts": {
+    "compress": "node compress.js"
+  },
+  "keywords": [
+    "opencart",
+    "opencart3",
+    "opencart-extension",
+    "playfulsparkle",
+    "live-search",
+    "autocomplete",
+    "quick-search",
+    "real-time-search",
+    "search-suggestions"
+  ],
+  "author": "zsoltoroszlany82 <zsolt.oroszlany@playfulsparkle.com>",
+  "license": "GPL",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/playfulsparkle/oc3_quantity_increment_decrement.git"
+  },
+  "devDependencies": {
+    "archiver": "^7.0.1",
+    "fs": "^0.0.1-security"
+  }
+}
