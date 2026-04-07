@@ -11,11 +11,9 @@
     "opencart3",
     "opencart-extension",
     "playfulsparkle",
-    "live-search",
-    "autocomplete",
-    "quick-search",
-    "real-time-search",
-    "search-suggestions"
+    "quantity-increment-decrement",
+    "plus-minus-buttons",
+    "product-quantity"
   ],
   "author": "zsoltoroszlany82 <zsolt.oroszlany@playfulsparkle.com>",
   "license": "GPL",
